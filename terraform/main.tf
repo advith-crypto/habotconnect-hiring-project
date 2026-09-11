@@ -34,3 +34,36 @@ resource "google_bigquery_dataset" "d1_staged_enforced" {
     environment = "staged-enforced"
   }
 }
+# D1 student onboarding table
+# The organization_id column provides the row-level security boundary.
+resource "google_bigquery_table" "student_onboarding" {
+  dataset_id = google_bigquery_dataset.d1_staged_enforced.dataset_id
+  table_id   = "student_onboarding"
+
+  schema = <<EOF
+[
+  {
+    "name": "student_id",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "organization_id",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "student_name",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "onboarding_status",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  }
+]
+EOF
+
+  deletion_protection = true
+}
