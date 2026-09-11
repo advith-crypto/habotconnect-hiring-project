@@ -12,7 +12,7 @@ resource "google_service_account" "data_pipeline" {
 
 resource "google_storage_bucket_iam_member" "data_pipeline_raw_access" {
   bucket = google_storage_bucket.d0_raw_landing.name
-  role   = "roles/storage.objectAdmin"
+  role   = "roles/storage.objectCreator"
   member = "serviceAccount:${google_service_account.data_pipeline.email}"
 
   condition {
