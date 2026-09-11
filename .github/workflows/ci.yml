@@ -1,0 +1,59 @@
+name: Poka-Yoke CI Security Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-security-gate:
+    name: Quality and Security Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform formatting check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform initialization
+        working-directory: terraform
+        run: terraform init -backend=false
+
+      - name: Terraform validation
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install YAML linter
+        run: python -m pip install --disable-pip-version-check yamllint
+
+      - name: YAML lint
+        run: yamllint .
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fail-closed confirmation
+        run: |
+          echo "All required quality and security gates passed."
+          echo "The change is eligible to continue through the pipeline."
