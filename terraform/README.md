@@ -21,27 +21,30 @@ Security controls include:
 - Object versioning
 - Soft-delete retention
 
+The dedicated data pipeline identity receives the
+`roles/storage.objectCreator` role rather than object administration
+permissions. This prevents the ingestion identity from modifying or
+deleting existing objects.
+
 ### D1 — Staged/Enforced
 
 BigQuery is used as the staged and enforced data layer.
 
-The dataset is configured for governed downstream processing and analytics.
+The `student_onboarding` table contains:
 
-## Identity and Access Management
+- `student_id`
+- `organization_id`
+- `student_name`
+- `onboarding_status`
 
-A dedicated service account is defined for the data pipeline.
+The table has deletion protection enabled.
 
-The pipeline receives bucket-level object permissions rather than broad
-project-level permissions.
+## Row-Level Security
 
-An IAM condition restricts the object permission to the D0 Raw Landing
-bucket.
+BigQuery Row-Level Security is applied to the
+`student_onboarding` table.
 
-## Validation
-
-Terraform configuration should be formatted and validated before any
-deployment operation.
+The policy uses:
 
 ```text
-terraform fmt
-terraform validate
+organization_id = SESSION_USER()
