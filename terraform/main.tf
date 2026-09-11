@@ -67,3 +67,12 @@ EOF
 
   deletion_protection = true
 }
+
+# App Engine application
+# This resource defines the regional App Engine application required
+# by the application hosting architecture.
+resource "google_app_engine_application" "app" {
+  project       = var.project_id
+  location_id   = var.region
+  database_type = "CLOUD_FIRESTORE"
+}
