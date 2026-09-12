@@ -76,3 +76,36 @@ class StudentOnboardingSerializerTests(SimpleTestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertIn("onboarding_status", serializer.errors)
+
+from rest_framework.test import APITestCase
+
+
+class StudentOnboardingAPITests(APITestCase):
+    def test_valid_onboarding_request_is_accepted(self):
+        response = self.client.post(
+            "/api/student-onboarding/",
+            {
+                "student_id": "STU002",
+                "organization_id": "ORG001",
+                "student_name": "API Test Student",
+                "onboarding_status": "pending",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["student_id"], "STU002")
+
+    def test_missing_required_field_is_rejected(self):
+        response = self.client.post(
+            "/api/student-onboarding/",
+            {
+                "student_id": "STU002",
+                "organization_id": "ORG001",
+                "student_name": "API Test Student",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("onboarding_status", response.data)
